@@ -52,6 +52,26 @@ flowchart LR
 ### 1. 📐 Normativa Técnica y Confort
 * `consultar_normativa_rne(norma, tema)`: Consulta instantánea de parámetros de las normas A.010, EM.110 (confort térmico/lumínico) y G.050 (seguridad).
 * `calcular_pozo_luz_normativo(pisos, entrepiso, tipo_ambiente)`: Calcula diámetros inscritos, lados mínimos y áreas reglamentarias de ventilación.
+* `consultar_estandar_capas_semanticas()`: Reglas de estandarización obligatoria de capas CAD para modelado 3D y BIM sin errores.
+
+---
+
+## ⚠️ Estándar Obligatorio de Capas Semánticas CAD-BIM
+
+> **REGLA DE ORO DEL MODELADO AGÉNTICO:**  
+> Queda terminantemente prohibido utilizar capas por **plumillas de ploteo** (`1`, `2`, `8`, etc.). La inteligencia artificial no adivina intenciones de dibujo; requiere **semántica arquitectónica**. Si un plano mezcla rieles de mampara o mobiliario dentro de la capa de muros, el agente extruirá muros ciegos erróneos.
+
+| Capa CAD Obligatoria | Significado Constructivo | Altura / Tratamiento en SketchUp y Revit |
+| :--- | :--- | :--- |
+| **`MUROS_ALTOS`** | Muros perimetrales y tabiques completos | Se extruyen sólidos a **$h = 2.60\text{ m}$** (piso a techo). |
+| **`MUROS_BAJOS`** | Alféizares de ventanas, antepechos y parapetos | Se extruyen a **$h = 0.90\text{ m}$ a $1.00\text{ m}$**. |
+| **`COLUMNAS`** | Placas y columnas estructurales | Se extruyen sólidas a **$h = 2.60\text{ m}$**. |
+| **`MAMPARAS`** | Puertas corredizas y divisiones de vidrio | No se extruyen como muro ciego; marco perimetral y paño translúcido. |
+| **`PUERTAS`** | Puertas batientes interiores y principales | Vano libre de paso a **$2.10\text{ m}$** de altura. |
+| **`VENTANAS`** | Ventanas de iluminación/ventilación | Vano entre el alféizar ($1.00\text{ m}$) y el dintel ($2.10\text{ m}$). |
+| **`LOSAS`** | Losas de piso, entrepiso y azotea | Extrusión horizontal de **$0.20\text{ m}$** de espesor. |
+
+---
 
 ### 2. 📊 Cómputos Métricos y Costos OE.3
 * `calcular_metrado_oe3(partida, descripcion, largo, ancho, alto, cantidad)`: Extrae metrados de muros (m²), revoques (m²), pisos (m²) y concreto estructural (m³) según la Norma Técnica de Metrados.

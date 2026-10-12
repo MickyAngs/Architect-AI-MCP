@@ -86,6 +86,54 @@ def calcular_pozo_luz_normativo(pisos: int, altura_entrepiso_m: float = 2.80, ti
         "referencia": "RNE Norma Técnica A.010 Art. 19"
     }
 
+@mcp.tool()
+def consultar_estandar_capas_semanticas() -> dict:
+    """
+    Retorna el estándar obligatorio de capas semánticas de AutoCAD para modelado agéntico autónomo en SketchUp y Revit.
+    Prohíbe capas por plumillas numéricas (1, 2, 8) y estandariza alturas y tratamientos constructivos.
+    """
+    return {
+        "estandar": "Estándar Semántico CAD-BIM (Cátedra Mg. Arq. Juan Miguel Angulo García)",
+        "regla_de_oro": "Prohibido usar plumillas de impresión (1, 2, 8). Usar nombres con significado constructivo.",
+        "capas_requeridas": {
+            "MUROS_ALTOS": {
+                "descripcion": "Muros portantes perimetrales y tabiques interiores de piso a techo.",
+                "altura_extrusion_m": 2.60,
+                "tratamiento_3d": "Extrusión sólida completa."
+            },
+            "MUROS_BAJOS": {
+                "descripcion": "Alféizares de ventanas, antepechos de ductos, barandas y parapetos de azotea.",
+                "altura_extrusion_m": 1.00,
+                "tratamiento_3d": "Extrusión sólida baja (0.90 m a 1.00 m)."
+            },
+            "COLUMNAS": {
+                "descripcion": "Columnas y placas estructurales de concreto armado.",
+                "altura_extrusion_m": 2.60,
+                "tratamiento_3d": "Extrusión estructural sólida."
+            },
+            "MAMPARAS": {
+                "descripcion": "Divisiones de vidrio templado y carpintería corrediza de piso a techo.",
+                "altura_extrusion_m": 2.60,
+                "tratamiento_3d": "No extruir como ladrillo ciego; marco perimetral y panel translúcido."
+            },
+            "PUERTAS": {
+                "descripcion": "Puertas batientes interiores y principales.",
+                "altura_extrusion_m": 2.10,
+                "tratamiento_3d": "Vano libre de paso a 2.10 m con dintel superior."
+            },
+            "VENTANAS": {
+                "descripcion": "Carpintería exterior de ventanas.",
+                "altura_extrusion_m": 1.20,
+                "tratamiento_3d": "Vano entre el alféizar (+1.00 m) y el dintel (+2.10 m)."
+            },
+            "LOSAS": {
+                "descripcion": "Losas de piso, entrepiso aligerado y techo.",
+                "espesor_m": 0.20,
+                "tratamiento_3d": "Extrusión horizontal de piso o entrepiso."
+            }
+        }
+    }
+
 # ---------------------------------------------------------------------------
 # 2. HERRAMIENTAS DE METRADOS Y COSTOS OE.3
 # ---------------------------------------------------------------------------
