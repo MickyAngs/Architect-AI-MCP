@@ -11,10 +11,7 @@ import json
 # Soporte compatible para MCP 1.x y MCP 2.x
 try:
     from mcp.server.fastmcp import FastMCP
-    mcp = FastMCP(
-        "Architect-AI-MCP",
-        description="Servidor MCP de Arquitectura y Construcción por Mg. Arq. Juan Miguel Angulo García"
-    )
+    mcp = FastMCP("Architect-AI-MCP")
 except (ImportError, ModuleNotFoundError):
     try:
         from mcp.server.mcpserver import MCPServer
@@ -119,35 +116,88 @@ def calcular_metrado_oe3(partida_codigo: str, descripcion: str, largo_m: float, 
     }
 
 # ---------------------------------------------------------------------------
-# 3. PUENTES DE MODELADO 3D Y BIM (SKETCHUP & REVIT)
+# 3. LA TRIPLE CORONA DEL DIBUJO Y MODELADO: AUTOCAD, SKETCHUP & REVIT
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
-def puente_sketchup_instruccion(comando_ruby: str, descripcion: str) -> dict:
+def puente_autocad_instruccion(accion: str, entidad: str = "POLILINEA", capa: str = "A-MUROS", parametros: dict = None, script_autolisp: str = "") -> dict:
     """
-    Genera y valida la instrucción en Ruby API para ejecutar directamente en Trimble SketchUp vía MCP.
+    PASO 1 (AutoCAD 2D): Genera y valida instrucciones paramétricas, comandos y scripts AutoLISP 
+    para ejecutar directamente en Autodesk AutoCAD (versiones 2020 a 2027) vía COM / multiCAD.
+    Entidades soportadas: POLILINEA, LINEA, RECTANGULO, EJE, COTA, TEXTO, HATCH.
     """
+    if parametros is None:
+        parametros = {}
+        
+    lisp_generado = script_autolisp
+    if not lisp_generado:
+        if entidad.upper() == "RECTANGULO":
+            x = parametros.get("ancho", 5.0)
+            y = parametros.get("largo", 5.0)
+            lisp_generado = f'(command "_RECTANG" "0,0" "{x},{y}")'
+        elif entidad.upper() == "CAPA":
+            lisp_generado = f'(command "_-LAYER" "_M" "{capa}" "_C" "7" "" "")'
+        else:
+            lisp_generado = f'(command "_{entidad.upper()}")'
+            
     return {
-        "entorno": "Trimble SketchUp",
-        "accion": descripcion,
-        "ruby_code": comando_ruby,
-        "status": "LISTO_PARA_EJECUTAR_MCP",
+        "paso": "PASO 1: AUTOCAD 2D",
+        "software": "Autodesk AutoCAD (2020-2027)",
+        "accion": accion,
+        "entidad": entidad.upper(),
+        "capa_asignada": capa,
+        "parametros": parametros,
+        "autolisp_code": lisp_generado,
+        "status": "LISTO_PARA_EJECUTAR_AUTOCAD",
+        "protocolo": "Model Context Protocol (autocad-mcp / multiCAD)"
+    }
+
+@mcp.tool()
+def puente_sketchup_instruccion(accion: str, dimensiones: dict = None, comando_ruby: str = "", crear_grupo: bool = True) -> dict:
+    """
+    PASO 2 (SketchUp 3D): Genera y valida la instrucción en Ruby API para levantar volumetrías de masa,
+    extrusión de plantas y maquetas conceptuales directamente en Trimble SketchUp vía MCP sin usar el ratón.
+    """
+    if dimensiones is None:
+        dimensiones = {"ancho_m": 6.0, "largo_m": 8.0, "altura_m": 3.0}
+        
+    ruby_code = comando_ruby
+    if not ruby_code:
+        w = dimensiones.get("ancho_m", 6.0) * 39.3701  # metros a pulgadas
+        l = dimensiones.get("largo_m", 8.0) * 39.3701
+        h = dimensiones.get("altura_m", 3.0) * 39.3701
+        ruby_code = f"""mod = Sketchup.active_model
+ent = mod.entities
+pts = [[0, 0, 0], [{w}, 0, 0], [{w}, {l}, 0], [0, {l}, 0]]
+face = ent.add_face(pts)
+face.pushpull(-{h})"""
+
+    return {
+        "paso": "PASO 2: SKETCHUP 3D",
+        "software": "Trimble SketchUp",
+        "accion": accion,
+        "dimensiones_m": dimensiones,
+        "ruby_code": ruby_code.strip(),
+        "crear_grupo": crear_grupo,
+        "status": "LISTO_PARA_EJECUTAR_SKETCHUP",
         "protocolo": "Model Context Protocol (sketchup-mcp)"
     }
 
 @mcp.tool()
 def puente_revit_bim_accion(categoria_bim: str, parametros: dict, accion: str) -> dict:
     """
-    Estructura la llamada nativa para el servidor rvt-mcp en Autodesk Revit (2022-2027).
-    Categorías: Walls, Columns, Beams, Rooms, Levels, Grids, Sheets, Schedules.
+    PASO 3 (Revit BIM 5D): Estructura la llamada nativa para el servidor rvt-mcp en Autodesk Revit (2022-2027).
+    Categorías: Levels, Grids, Walls, Columns, Beams, Rooms, Sheets, Schedules (Metrados OE.3).
     """
     return {
-        "entorno": "Autodesk Revit",
+        "paso": "PASO 3: REVIT BIM 5D",
+        "software": "Autodesk Revit (2022-2027)",
         "categoria": categoria_bim,
         "accion": accion,
         "parametros": parametros,
         "endpoint_target": "rvt-mcp local gateway",
-        "status": "VALIDADO_BIM_5D"
+        "status": "VALIDADO_BIM_5D",
+        "protocolo": "Model Context Protocol (rvt-mcp)"
     }
 
 # ---------------------------------------------------------------------------

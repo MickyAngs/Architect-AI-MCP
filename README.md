@@ -38,9 +38,10 @@ flowchart LR
         B --> T1[📐 consultar_normativa_rne]
         B --> T2[☀️ calcular_pozo_luz_normativo]
         B --> T3[📊 calcular_metrado_oe3]
-        B --> T4[🏗️ puente_sketchup_instruccion]
-        B --> T5[🏢 puente_revit_bim_accion]
-        B --> T6[⚡ gateway_omniroute_status]
+        B --> T4[📏 Paso 1: puente_autocad_instruccion]
+        B --> T5[🏗️ Paso 2: puente_sketchup_instruccion]
+        B --> T6[🏢 Paso 3: puente_revit_bim_accion]
+        B --> T7[⚡ gateway_omniroute_status]
     end
     A <-->|Protocolo MCP| B
     style Cliente IA fill:#f8fafc,stroke:#0284c7,stroke-width:2px
@@ -55,9 +56,10 @@ flowchart LR
 ### 2. 📊 Cómputos Métricos y Costos OE.3
 * `calcular_metrado_oe3(partida, descripcion, largo, ancho, alto, cantidad)`: Extrae metrados de muros (m²), revoques (m²), pisos (m²) y concreto estructural (m³) según la Norma Técnica de Metrados.
 
-### 3. 🏗️ Modelado 3D y Automatización BIM
-* `puente_sketchup_instruccion(ruby_code, descripcion)`: Genera y valida scripts Ruby para Trimble SketchUp vía MCP.
-* `puente_revit_bim_accion(categoria, parametros, accion)`: Estructura llamadas nativas para Autodesk Revit (2022 al 2027) vía `rvt-mcp`.
+### 3. 🎯 La Triple Corona del Modelado Arquitectónico (Por Pasos)
+* **Paso 1 · 📏 AutoCAD 2D (`puente_autocad_instruccion`):** Genera entidades paramétricas 2D (polilíneas, ejes, capas, cotas) y scripts AutoLISP ejecutables en Autodesk AutoCAD (2020 a 2027) vía COM/multiCAD.
+* **Paso 2 · 🏗️ SketchUp 3D (`puente_sketchup_instruccion`):** Genera instrucciones en Ruby API para levantar volumetrías de masa, extrusiones de plantas y maquetas conceptuales directamente en Trimble SketchUp vía MCP sin usar el mouse.
+* **Paso 3 · 🏢 Revit BIM 5D (`puente_revit_bim_accion`):** Estructura llamadas nativas para el servidor `rvt-mcp` en Autodesk Revit (2022 al 2027) para crear niveles, rejillas, muros constructivos, habitaciones, tablas de metrados OE.3 y láminas.
 
 ### 4. ⚡ Enrutamiento Zero-RAM (Laptops 8 GB)
 * `gateway_omniroute_status()`: Conecta con el proxy local en `http://localhost:20128/v1` para ejecutar modelos cloud (Gemini, DeepSeek, Qwen) sin congelar la computadora.
@@ -93,12 +95,12 @@ Copia el contenido de `mcp_config.json` en la configuración de servidores MCP d
 
 ---
 
-## 💬 Ejemplos de Uso con el Agente
-
-* *"Agente, calcula el pozo de luz mínimo para un edificio residencial de 5 pisos con entrepisos de 2.80 m."*
-* *"Agente, extrae el metrado de muros de ladrillo soga de 12.50 m de largo por 2.60 m de alto."*
-* *"Agente, verifica la altura mínima de entrepiso según la norma A.010 del RNE."*
-* *"Agente, genera la instrucción para levantar una volumetría de 3 niveles en SketchUp."*
+## 💬 Ejemplos de Prompts por Pasos
+* **Paso 1 (AutoCAD 2D):** *"Agente, en AutoCAD crea la capa A-MUROS en color blanco y dibuja el perímetro del terreno de 10.00 x 20.00 metros con una polilínea cerrada."*
+* **Paso 2 (SketchUp 3D):** *"Agente, levanta la volumetría preliminar en SketchUp de 3 niveles con alturas de entrepiso de 3.00 m y agrúpalo."*
+* **Paso 3 (Revit BIM 5D):** *"Agente, en Revit crea los niveles Nivel 1 (+0.00), Nivel 2 (+3.20) y traza la grilla de ejes estructurales de 5x5 metros."*
+* **Auditoría RNE:** *"Agente, calcula el pozo de luz normativo según RNE A.010 para un edificio multifamiliar de 5 pisos."*
+* **Metrados OE.3:** *"Agente, extrae el metrado normativo de muros de albañilería (OE.3.1) para 4 tramos de 12.50 m de largo por 2.60 m de alto."*
 
 ---
 
